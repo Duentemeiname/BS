@@ -1,0 +1,9 @@
+public class Gibaus {
+
+    public static void main(String[] args) {
+
+        System.out.println("Gibaus Java Edition");
+        // Hier Programmcode einfuegen.
+
+    }
+}

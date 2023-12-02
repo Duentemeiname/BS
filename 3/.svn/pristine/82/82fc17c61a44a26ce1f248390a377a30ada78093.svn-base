@@ -1,0 +1,15 @@
+import java.util.Random;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
+public class Gibaus_mutex {
+
+
+    public static void main(String[] args) {
+
+        System.out.println("Gibaus Mutex Java Edition");
+
+        // Hier Programmcode einfuegen.
+
+    }
+}
