@@ -73,25 +73,25 @@ public class Zwergenbaeckerei {
         }
     }
 
-    private static void backen() {
+    private static void backen(int baeckerNummer) {
         backstubeSchloss.lock();
         try {
-            System.out.println("Bäckermeister: Vor der Backstube, schlafe");
+            System.out.println("Bäcker " + baeckerNummer + ": Vor der Backstube, schlafe");
             while (mahlVorrat.get() < 3 || eiVorrat.get() < 3 || milchVorrat.get() < 3) {
-                System.out.println("Bäckermeister: Warte auf Zutaten, schlafe");
+                System.out.println("Bäcker " + baeckerNummer + ": Warte auf Zutaten, schlafe");
                 vorratAufgefuehrt.await();
             }
 
-            System.out.println("Bäckermeister: Betrete die Backstube");
-            System.out.println("Bäckermeister: Backen (Vorrat: " + mahlVorrat + ", " + eiVorrat + ", " + milchVorrat + ")");
+            System.out.println("Bäcker " + baeckerNummer + ": Betrete die Backstube");
+            System.out.println("Bäcker " + baeckerNummer + ": Backen (Vorrat: " + mahlVorrat + ", " + eiVorrat + ", " + milchVorrat + ")");
             Thread.sleep(5 * 1000);
-            System.out.println("Bäckermeister: Backen fertig");
+            System.out.println("Bäcker " + baeckerNummer + ": Backen fertig");
 
             mahlVorrat.set(0);
             eiVorrat.set(0);
             milchVorrat.set(0);
 
-            System.out.println("Bäckermeister: Vorrat aufgebraucht, wecke Zwerge");
+            System.out.println("Bäcker " + baeckerNummer + ": Vorrat aufgebraucht, wecke Zwerge");
             vorratAufgebraucht.signalAll();
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -102,41 +102,44 @@ public class Zwergenbaeckerei {
 
     public static void main(String[] args) {
         System.out.println("Zwergenbäckerei Java Edition");
-
         for (int i = 0; i < 10; i++) {
-            Thread mahlThread = new Thread(() -> {
-                for (int j = 0; j < 3; j++) {
-                    mahlAnliefern();
+            for (int j = 0; j < 2; j++) {
+                final int baeckerNummer = j + 1;
+    
+                Thread mahlThread = new Thread(() -> {
+                    for (int k = 0; k < 3; k++) {
+                        mahlAnliefern();
+                    }
+                });
+    
+                Thread eiThread = new Thread(() -> {
+                    for (int k = 0; k < 3; k++) {
+                        eiAnliefern();
+                    }
+                });
+    
+                Thread milchThread = new Thread(() -> {
+                    for (int k = 0; k < 3; k++) {
+                        milchAnliefern();
+                    }
+                });
+    
+                Thread backenThread = new Thread(() -> backen(baeckerNummer));
+    
+                mahlThread.start();
+                eiThread.start();
+                milchThread.start();
+                backenThread.start();
+    
+                try {
+                    mahlThread.join();
+                    eiThread.join();
+                    milchThread.join();
+                    backenThread.join();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
-            });
-
-            Thread eiThread = new Thread(() -> {
-                for (int j = 0; j < 3; j++) {
-                    eiAnliefern();
-                }
-            });
-
-            Thread milchThread = new Thread(() -> {
-                for (int j = 0; j < 3; j++) {
-                    milchAnliefern();
-                }
-            });
-
-            Thread backenThread = new Thread(() -> backen());
-
-            mahlThread.start();
-            eiThread.start();
-            milchThread.start();
-            backenThread.start();
-
-            try {
-                mahlThread.join();
-                eiThread.join();
-                milchThread.join();
-                backenThread.join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
             }
-        }
+    }
     }
 }
