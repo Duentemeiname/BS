@@ -1,0 +1,40 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <assert.h>
+#include "db.h"
+
+/*
+ * Durchfuehrung einer Transaktion:
+ * 1. Zufaelligen Betrag von einem zufaelligen Konto abheben
+ * 2. Diesen Betrag auf ein zufaelliges Konto wieder einzahlen
+ */
+void random_transaction(void)
+{
+	unsigned int from_customer = rand() % DB_ENTRIES;
+	unsigned int to_customer = rand() % DB_ENTRIES;
+	int amount = 1 + rand() % DB_MAX_TRANSFER;
+
+	db_money_transfer(from_customer, to_customer, amount);
+}
+
+int main(int argc, char *argv[])
+{
+	printf("Datenbank Stresstest\n");
+
+	if (!db_check()) {
+		printf("Datenbank nicht gefunden!\n");
+		printf("Legen Sie eine Datenbank mit $ ./db_new an!\n");
+		exit(EXIT_FAILURE);
+	}
+
+	/* Stresstest: 1000 zufaellige Transaktionen */
+	for (size_t i = 0; i < 1000; ++i) {
+		random_transaction();
+	}
+
+	printf("Bilanz am Ende: %d\n", db_get_balance());
+
+	return EXIT_SUCCESS;
+}
